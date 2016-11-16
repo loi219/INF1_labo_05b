@@ -11,5 +11,6 @@
 
 ##Updates
 - [ ] Fonction JoursSemaine
-- [ ] Boucler sur tous les mois dans l'intervalle donnée
+- [ ] Boucler sur tous les mois dans l'intervalle donnée (vérification + double boucle for (année et mois))
 - [ ] Affichage numéros de semaine 
+
