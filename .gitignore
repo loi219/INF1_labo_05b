@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+# Others
+*.txt
+./DS_Store
+.idea
+*.pdf
