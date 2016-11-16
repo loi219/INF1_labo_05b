@@ -7,7 +7,7 @@
  Date        : 15.11.2016
 
  But         : Affiche le calendrier annuel complet d'une ann?e choisie par
-               l'utilisateur entre [1900 - 2100] en tenant compte des ann?es
+               l'utilisateur entre [1900 - 2100] en tenant compte des années
                bissextiles.
 
  Remarque(s) : Les fonctions ne tiennent pas compte des erreurs.
@@ -26,11 +26,14 @@
 
 using namespace std;
 
-void reparerBuffer();
-
+// Propose à l'utilisateur de recommencer le programme
 bool reset();
 
-bool estBissextile(int anneeUtilisateur);
+// Gère la saisie d'un nombre entier par l'utilisateur
+int saisieInt(const string messageSaisie, const int borneMin, const int borneMax);
+
+// Défini si une année est bissextile pour une année donnée
+bool estBissextile(const int anneeUtilisateur);
 
 int main() {
    //Constantes et variables utilisées
@@ -49,43 +52,21 @@ int main() {
    const string JOURS_SEMAINE = " L  M  M  J  V  S  D";
    const string BARRE_DECO = "|===================|";
 
-   int anneeUtilisateur, joursMaxMoisActuel, compteurJoursTotal;
+   int annee,
+       joursMaxMoisActuel,
+       compteurJoursTotal;
    string mois;
-   bool saisieOk;
 
    //Boucle qui permet de reset le programme
    do {
-      cout << "Bonjour, ce programme vous permet d'afficher le calendrier "
-              "complet d'une annee" << endl
-           << "en tenant compte des annees bissextiles"
-           << endl << endl;
+      cout << "Bonjour, ce programme vous permet d'afficher le calendrier complet "
+              "d'une annee en tenant compte des annees bissextiles" << endl << endl;
 
       // Saisie + vérification
       //=============================================================================
-
-      do {
-         cout << "Veuillez entrer l'annee que vous souhaitez afficher" <<
-              " [" << ANNEE_MIN << " - " << ANNEE_MAX << "]  :  ";
-         bool saisie = bool(cin >> anneeUtilisateur);
-         cout << endl;
-
-         if (!saisie) {
-            cin.clear();
-            cerr << "Entrez un chiffre entier" << endl;
-            saisieOk = false;
-         } else if (anneeUtilisateur < ANNEE_MIN || anneeUtilisateur > ANNEE_MAX) {
-
-
-
-            cerr << endl << "Erreur ! L'annee doit etre situee entre [" << ANNEE_MIN
-                 << " - " << ANNEE_MAX << "]" << endl; // Message d'erreur
-
-            saisieOk = false;
-         } else {
-            saisieOk = true;
-         }
-         VIDER_BUFFER;
-      } while (!saisieOk);
+      annee = saisieInt("Veuillez saisie une annee dans l'intervalle ["
+                        + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX) + "] : ",
+                        ANNEE_MIN, ANNEE_MAX);
 
       cout << endl << endl;
 
@@ -143,14 +124,14 @@ int main() {
 
          // Affichage du mois, de l'année et la ligne des jours de la semaine
          cout << BARRE_DECO << endl;
-         cout << mois << " " << anneeUtilisateur << endl;
+         cout << mois << " " << annee << endl;
          cout << JOURS_SEMAINE << endl;
 
          // Calcul du nombre de jours maximum du mois en fonction du mois actuel
          if (compteurMois % 2 == 1) {// Mois impairs, avec 30 jours
             joursMaxMoisActuel = JOURS_MAX_IMPAIR;
          } else if (compteurMois == 2) { // Février
-            estBissextile(anneeUtilisateur) ?
+            estBissextile(annee) ?
                     joursMaxMoisActuel = JOURS_MAX_FEVRIER_BISSEXTILE : // 29 jours
                     joursMaxMoisActuel = JOURS_MAX_FEVRIER;             // 28 jours
          } else {// Mois pairs, avec 31 jours
@@ -181,18 +162,43 @@ int main() {
 
    // Fin du programme
    //================================================================================
-   cout << "Cher utilisateur, merci d'avoir utilise notre programme." << endl
+   cout << "Merci d'avoir utilise notre programme." << endl
         << "Pressez sur Enter pour quitter le programme." << endl;
 
    return EXIT_SUCCESS;
 }
 
-void reparerBuffer() {
-   if (cin.fail()) // si le flux d'entrée est en erreur, on vide le buffer
-   {
-      cin.clear();
-      cin.ignore(numeric_limits<streamsize>::max(), '\n');
-   }
+//===================================================================================
+// Fonctions
+//===================================================================================
+
+int saisieInt(const string messageSaisie, const int borneMin, const int borneMax) {
+
+   int  saisie;
+   bool saisieOK;
+   bool erreurFlux;
+
+   const string MSG_ERREUR_FLUX   = "Merci d'entrer un nombre entier.";
+   const string MSG_ERREUR_VALEUR = "La valeur saisie n'est pas dans l'intervalle";
+
+   do {
+      cout << messageSaisie;
+      erreurFlux = bool(cin >> saisie);
+      saisieOK = false;
+
+      if (!erreurFlux) {
+         cin.clear();
+         cout << MSG_ERREUR_FLUX << endl;
+      } else if (saisie < borneMin || saisie > borneMax) {
+         cout << MSG_ERREUR_VALEUR << endl;
+      } else {
+         saisieOK = true;
+      }
+
+      VIDER_BUFFER;
+   } while (!saisieOK);
+
+   return saisie;
 }
 
 bool reset() {
@@ -203,7 +209,10 @@ bool reset() {
       // On demande à l'utilisateur s'il souhaite recommencer
       cout << "Voulez-vous recommencer ? [" << OUI << " / " << NON << "]";
       cin >> reponseUtilisateur;
-      reparerBuffer();
+
+      if (cin.fail()) {
+         cin.clear();
+      }
       VIDER_BUFFER;
 
       if (toupper(reponseUtilisateur) == OUI) {
@@ -220,6 +229,6 @@ bool reset() {
 
 }	// Fin de la fonction bool recommencer
 
-bool estBissextile(int anneeUtilisateur) {
+bool estBissextile(const int anneeUtilisateur) {
    return bool(!(anneeUtilisateur % 400) || (!(anneeUtilisateur % 4) && (anneeUtilisateur % 100)));
 }
