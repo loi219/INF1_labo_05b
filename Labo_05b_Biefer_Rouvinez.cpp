@@ -26,6 +26,10 @@
 
 using namespace std;
 
+//===================================================================================
+// Prototypes
+//===================================================================================
+
 // Propose à l'utilisateur de recommencer le programme
 bool reset();
 
@@ -34,6 +38,10 @@ int saisieInt(const string messageSaisie, const int borneMin, const int borneMax
 
 // Défini si une année est bissextile pour une année donnée
 bool estBissextile(const int anneeUtilisateur);
+
+//===================================================================================
+// Programme principal
+//===================================================================================
 
 int main() {
    //Constantes et variables utilisées
