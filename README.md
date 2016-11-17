@@ -6,7 +6,7 @@
 - [x] Ajouter un espace après la demande pour reset (branch: repairReset) - Sven
 - [ ] Diminuer le retour à la ligne entre les mois (branch: fixAffichage)
 - [ ] Affichage mois (branch: fixAffichage)
-- [ ] Jours dans les mois (branch: fixJoursMois)
+- [ ] Jours dans les mois (branch: fixJoursMois) - Sven
 - [x] Fonction estBissextile
 
 ##Updates                                                                                                                                                             
