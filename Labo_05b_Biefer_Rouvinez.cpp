@@ -42,9 +42,8 @@ bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam
 // Défini si une année est bissextile pour une année donnée
 bool estBissextile(const int anneeUtilisateur);
 
-
 //Retourne le jours par rapport à 1 mois donné
-string intMoisEnJours(int numMois);
+string intMoisEnJours(const int numMois);
 
 //Retourne le nombre de jours dans 1 mois
 int nbrJoursMois(const int mois, const int annee);
@@ -72,9 +71,8 @@ int main() {
 	const char RECOMMENCER_VRAI = 'o';
 	const char RECOMMENCER_FAUX = 'n';
 
-	int annee,
-			joursMaxMoisActuel,
-			compteurJoursTotal;
+	int  annee,
+         joursMaxMoisActuel;
 	string mois;
 
 	//Boucle qui permet de reset le programme
@@ -90,67 +88,20 @@ int main() {
 
 		cout << endl << endl;
 
-		// Affichage + calcul
-		//=============================================================================
+       // Affichage
+       //=============================================================================
 
-		// L'année commence par un lundi (selon la consigne donn?e)
-		compteurJoursTotal = 1;
+    } while (saisieRecommencer(RECOMMENCER_VRAI, RECOMMENCER_FAUX));    //Le programme recommence si l'utilisateur le souhaite
 
-		// Décompte des mois
-		//=============================================================================
+   // Fin du programme
+   //================================================================================
+   cout << "Merci d'avoir utilise le programme." << endl
+        << "Pressez sur ENTER pour quitter le programme..." << endl;
+   VIDER_BUFFER;
 
-		// Affichage du mois, de l'année et la ligne des jours de la semaine
-		cout << BARRE_DECO << endl;
-		cout << mois << " " << annee << endl;
-		cout << JOURS_SEMAINE << endl;
-
-		// Calcul du nombre de jours maximum du mois en fonction du mois actuel
-		if (compteurMois % 2 == 1) {// Mois impairs, avec 30 jours
-			joursMaxMoisActuel = JOURS_MAX_IMPAIR;
-		} else if (compteurMois == 2) { // Février
-			estBissextile(annee) ?
-					joursMaxMoisActuel = JOURS_MAX_FEVRIER_BISSEXTILE : // 29 jours
-					joursMaxMoisActuel = JOURS_MAX_FEVRIER;             // 28 jours
-		} else {// Mois pairs, avec 31 jours
-			joursMaxMoisActuel = JOURS_MAX_PAIR;
-		}
-
-		// Décompte des jours du mois
-		//==========================================================================
-		for (int compteurJoursMois = 1; compteurJoursMois <= joursMaxMoisActuel;
-		     compteurJoursMois++, compteurJoursTotal++) {
-
-			// traitement de cas du 1er jour du mois
-			if (compteurJoursMois == 1) {
-				int nbreDeEspaces = (compteurJoursTotal % JOUR_PAR_SEMAINE)
-				                    * ESPACE_PAR_CHIFFRE;
-				cout << setw(nbreDeEspaces - 1) << compteurJoursMois << " ";
-			} else {
-				cout << setw(ESPACE_PAR_CHIFFRE - 1) << compteurJoursMois << " ";
-			}
-			//Retour à la ligne le dimanche
-			if ((compteurJoursTotal % JOUR_PAR_SEMAINE) == 0) cout << endl;
-		}    // Fin de la boucle for pour le décompte des jours du mois
-
-		cout << endl << endl << endl << endl; // Espaces entre chaque mois
-	}    // Fin de la boucle for pour le décompte des mois
-
+   return EXIT_SUCCESS;
 }
 
-while (
-saisieRecommencer(RECOMMENCER_VRAI,
-		RECOMMENCER_FAUX
-));    //Le programme recommence si l'utilisateur le souhaite
-
-// Fin du programme
-//================================================================================
-cout << "Merci d'avoir utilise notre programme." << endl
-<< "Pressez sur Enter pour quitter le programme." <<
-endl;
-
-return
-EXIT_SUCCESS;
-}
 
 //===================================================================================
 // Fonctions
@@ -185,8 +136,7 @@ int saisieInt(const string messageSaisie, const int borneMin, const int borneMax
 	return saisie;
 }
 
-bool saisieRecommencer(const char valeurVraieParam,
-                       const char valeurFausseParam) {
+bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam) {
 
 	// Définition des variables nécessaires à la saisie
 	char saisie;        // Variable qui contiendra la valeur saisie
@@ -229,17 +179,14 @@ bool saisieRecommencer(const char valeurVraieParam,
 	return (toupper(saisie) == valeurVraie);
 }
 
-
 bool estBissextile(const int anneeUtilisateur) {
 	return bool(!(anneeUtilisateur % 400) || (!(anneeUtilisateur % 4) && (anneeUtilisateur % 100)));
 }
 
-
-string intMoisEnJours(int numMois) {
+string intMoisEnJours(const int numMois) {
 	string mois;
 
 	// On affecte la valeur correcte du mois actuel à la variable string "mois"
-
 	switch (numMois) {
 		case 1:
 			mois = "Janvier";
@@ -284,7 +231,6 @@ string intMoisEnJours(int numMois) {
 
 	return mois;
 }
-
 
 int nbrJoursMois(const int mois, const int annee) {
 	// On compte 31 pour tous les mois puis
