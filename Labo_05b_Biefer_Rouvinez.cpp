@@ -42,6 +42,13 @@ bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam
 // Défini si une année est bissextile pour une année donnée
 bool estBissextile(const int anneeUtilisateur);
 
+
+//Retourne le jours par rapport à 1 mois donné
+string intMoisEnJours(int numMois);
+
+//Retourne le nombre de jours dans 1 mois
+int nbrJoursMois(const int mois, const int annee);
+
 //===================================================================================
 // Programme principal
 //===================================================================================
@@ -91,95 +98,58 @@ int main() {
 
 		// Décompte des mois
 		//=============================================================================
-		for (int compteurMois = MOIS_MIN; compteurMois <= MOIS_MAX; compteurMois++) {
-			// On affecte la valeur correcte du mois actuel à la variable string "mois"
-			switch (compteurMois) {
-				case 1:
-					mois = "Janvier";
-					break;
-				case 2:
-					mois = "Fevrier";
-					break;
-				case 3:
-					mois = "Mars";
-					break;
-				case 4:
-					mois = "Avril";
-					break;
-				case 5:
-					mois = "Mai";
-					break;
-				case 6:
-					mois = "Juin";
-					break;
-				case 7:
-					mois = "Juillet";
-					break;
-				case 8:
-					mois = "Aout";
-					break;
-				case 9:
-					mois = "Septembre";
-					break;
-				case 10:
-					mois = "Octobre";
-					break;
-				case 11:
-					mois = "Novembre";
-					break;
-				case 12:
-					mois = "Decembre";
-					break;
-				default:
-					mois = "";
-					cerr << "Erreur !";
-			} // fin du switch
 
-			// Affichage du mois, de l'année et la ligne des jours de la semaine
-			cout << BARRE_DECO << endl;
-			cout << mois << " " << annee << endl;
-			cout << JOURS_SEMAINE << endl;
+		// Affichage du mois, de l'année et la ligne des jours de la semaine
+		cout << BARRE_DECO << endl;
+		cout << mois << " " << annee << endl;
+		cout << JOURS_SEMAINE << endl;
 
-			// Calcul du nombre de jours maximum du mois en fonction du mois actuel
-			if (compteurMois % 2 == 1) {// Mois impairs, avec 30 jours
-				joursMaxMoisActuel = JOURS_MAX_IMPAIR;
-			} else if (compteurMois == 2) { // Février
-				estBissextile(annee) ?
-						joursMaxMoisActuel = JOURS_MAX_FEVRIER_BISSEXTILE : // 29 jours
-						joursMaxMoisActuel = JOURS_MAX_FEVRIER;             // 28 jours
-			} else {// Mois pairs, avec 31 jours
-				joursMaxMoisActuel = JOURS_MAX_PAIR;
+		// Calcul du nombre de jours maximum du mois en fonction du mois actuel
+		if (compteurMois % 2 == 1) {// Mois impairs, avec 30 jours
+			joursMaxMoisActuel = JOURS_MAX_IMPAIR;
+		} else if (compteurMois == 2) { // Février
+			estBissextile(annee) ?
+					joursMaxMoisActuel = JOURS_MAX_FEVRIER_BISSEXTILE : // 29 jours
+					joursMaxMoisActuel = JOURS_MAX_FEVRIER;             // 28 jours
+		} else {// Mois pairs, avec 31 jours
+			joursMaxMoisActuel = JOURS_MAX_PAIR;
+		}
+
+		// Décompte des jours du mois
+		//==========================================================================
+		for (int compteurJoursMois = 1; compteurJoursMois <= joursMaxMoisActuel;
+		     compteurJoursMois++, compteurJoursTotal++) {
+
+			// traitement de cas du 1er jour du mois
+			if (compteurJoursMois == 1) {
+				int nbreDeEspaces = (compteurJoursTotal % JOUR_PAR_SEMAINE)
+				                    * ESPACE_PAR_CHIFFRE;
+				cout << setw(nbreDeEspaces - 1) << compteurJoursMois << " ";
+			} else {
+				cout << setw(ESPACE_PAR_CHIFFRE - 1) << compteurJoursMois << " ";
 			}
+			//Retour à la ligne le dimanche
+			if ((compteurJoursTotal % JOUR_PAR_SEMAINE) == 0) cout << endl;
+		}    // Fin de la boucle for pour le décompte des jours du mois
 
-			// Décompte des jours du mois
-			//==========================================================================
-			for (int compteurJoursMois = 1; compteurJoursMois <= joursMaxMoisActuel;
-			     compteurJoursMois++, compteurJoursTotal++) {
+		cout << endl << endl << endl << endl; // Espaces entre chaque mois
+	}    // Fin de la boucle for pour le décompte des mois
 
-				// traitement de cas du 1er jour du mois
-				if (compteurJoursMois == 1) {
-					int nbreDeEspaces = (compteurJoursTotal % JOUR_PAR_SEMAINE)
-					                    * ESPACE_PAR_CHIFFRE;
-					cout << setw(nbreDeEspaces - 1) << compteurJoursMois << " ";
-				} else {
-					cout << setw(ESPACE_PAR_CHIFFRE - 1) << compteurJoursMois << " ";
-				}
-				//Retour à la ligne le dimanche
-				if ((compteurJoursTotal % JOUR_PAR_SEMAINE) == 0) cout << endl;
-			}    // Fin de la boucle for pour le décompte des jours du mois
+}
 
-			cout << endl << endl << endl << endl; // Espaces entre chaque mois
-		}    // Fin de la boucle for pour le décompte des mois
+while (
+saisieRecommencer(RECOMMENCER_VRAI,
+		RECOMMENCER_FAUX
+));    //Le programme recommence si l'utilisateur le souhaite
 
-	} while (saisieRecommencer(RECOMMENCER_VRAI,
-	                           RECOMMENCER_FAUX));    //Le programme recommence si l'utilisateur le souhaite
+// Fin du programme
+//================================================================================
+cout << "Merci d'avoir utilise notre programme." << endl
+<< "Pressez sur Enter pour quitter le programme." <<
+endl;
 
-	// Fin du programme
-	//================================================================================
-	cout << "Merci d'avoir utilise notre programme." << endl
-	     << "Pressez sur Enter pour quitter le programme." << endl;
-
-	return EXIT_SUCCESS;
+return
+EXIT_SUCCESS;
 }
 
 //===================================================================================
@@ -262,4 +232,64 @@ bool saisieRecommencer(const char valeurVraieParam,
 
 bool estBissextile(const int anneeUtilisateur) {
 	return bool(!(anneeUtilisateur % 400) || (!(anneeUtilisateur % 4) && (anneeUtilisateur % 100)));
+}
+
+
+string intMoisEnJours(int numMois) {
+	string mois;
+
+	// On affecte la valeur correcte du mois actuel à la variable string "mois"
+
+	switch (numMois) {
+		case 1:
+			mois = "Janvier";
+			break;
+		case 2:
+			mois = "Fevrier";
+			break;
+		case 3:
+			mois = "Mars";
+			break;
+		case 4:
+			mois = "Avril";
+			break;
+		case 5:
+			mois = "Mai";
+			break;
+		case 6:
+			mois = "Juin";
+			break;
+		case 7:
+			mois = "Juillet";
+			break;
+		case 8:
+			mois = "Aout";
+			break;
+		case 9:
+			mois = "Septembre";
+			break;
+		case 10:
+			mois = "Octobre";
+			break;
+		case 11:
+			mois = "Novembre";
+			break;
+		case 12:
+			mois = "Decembre";
+			break;
+		default:
+			mois = "";
+			cerr << "Erreur !";
+	}
+
+	return mois;
+}
+
+
+int nbrJoursMois(const int mois, const int annee) {
+	// On compte 31 pour tous les mois puis
+	//      - si c'est février, on déduit 2 si c'est bissextile et 3 si ça ne l'est pas
+	//      - si ce n'est pas février, on fait modulo 7 pour "mettre août sur janvier"
+	//        ensuite on enlève soit 0 soit 1 avec le modulo 2.
+	return 31 - ((mois == 1) ? (3 - (int) estBissextile(annee)) : ((mois) % 7 % 2));
 }
