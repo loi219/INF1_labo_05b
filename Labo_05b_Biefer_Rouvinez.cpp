@@ -78,7 +78,6 @@ int main() {
 	const int JOURS_MAX_FEVRIER = 28;
 	const int JOURS_MAX_FEVRIER_BISSEXTILE = 29;
 	const string JOURS_SEMAINE = " L  M  M  J  V  S  D";
-
 	const char RECOMMENCER_VRAI = 'o';
 	const char RECOMMENCER_FAUX = 'n';
 
