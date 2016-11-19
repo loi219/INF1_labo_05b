@@ -4,7 +4,7 @@
 - [x] Externaliser la saisie dans une fonction
 - [x] Modifier reset() pour sortir les return du if (branch: repairReset) - Sven
 - [x] Ajouter un espace après la demande pour reset (branch: repairReset) - Sven
-- [ ] Affichage mois (branch: fixAffichageMois)                           - Sven 
+- [x] Affichage mois (branch: fixAffichageMois)                           - Sven
 - [x] Jours dans les mois (branch: fixJoursMois)
 - [x] Fonction estBissextile
 
