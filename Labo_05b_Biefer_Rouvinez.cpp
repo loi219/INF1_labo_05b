@@ -67,9 +67,10 @@ bool controleFlux(const bool saisie);
 int jourSemaine(const int jour, const int mois, const int annee);
 
 //retourne le nombre de mois total entre les dates données
-int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2);
+int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2, const int nbreMois);
 
-int calculNumSemaine(const int mois);
+//Retourne le numéro d'une semaine en fonction de son mois
+int calculNumSemaine(const int mois, const int numSemaineMois);
 
 //===================================================================================
 // Programme principal
@@ -106,14 +107,14 @@ int main() {
 
 		// Définition du premier jour de l'année
 		//=============================================================================
-		premierJourAnnee = jourSemaine(1, saisieMois1, saisieAnnee1);
+		premierJourAnnee = jourSemaine(1, saisieMois1 - 1, saisieAnnee1);
 
 		// Affichage
 		//=============================================================================
 
-		int moisTotal = calculDiffMois(saisieMois1, saisieMois2, saisieAnnee1, saisieAnnee2);
+		int moisTotal = calculDiffMois(saisieMois1, saisieMois2, saisieAnnee1, saisieAnnee2, MOIS_MAX);
 
-		int moisDebut = saisieMois1;
+		int moisDebut = saisieMois1 - 1;
 		int moisMax = MOIS_MAX;
 		for (int premierJourMois = premierJourAnnee, annee = saisieAnnee1;
 		     annee <= saisieAnnee2; ++annee) {
@@ -127,7 +128,7 @@ int main() {
 				}
 				moisMax = moisTotal - moisBoucle;
 				moisDebut = 0;
-				annee++;
+				//annee++;
 			}
 		}
 	} while (saisieRecommencer(RECOMMENCER_VRAI, RECOMMENCER_FAUX));
@@ -148,26 +149,18 @@ int main() {
 
 
 int calculNumSemaine(const int mois, const int numSemaineMois) {
-
-	int numSemaine;
-
-	numSemaine = mois * 4 + numSemaineMois;
-
-	return numSemaine;
+//selon le mois donné, et la semaine de ce mois, on calcule le numéro de semaine depuis le début de l'intervalle
+	return mois * 4 + numSemaineMois;
 }
 
-int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2) {
-
+int calculDiffMois(const int mois1, int mois2, const int annee1, const int annee2, const int nbreMois) {
+	mois2++;
 	int diffMois = mois2 - mois1;
-
 	if (mois1 > mois2) {
 
 		diffMois = mois1 - mois2;
 	}
-
-	int diffAnnee = (annee2 - annee1) * 12;
-
-
+	int diffAnnee = (annee2 - annee1) * nbreMois;
 	return diffAnnee + diffMois;
 }
 
@@ -187,15 +180,22 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	cout << intMoisEnString(mois) << " " << annee << endl;
 	afficheBarre(SYMBOLE, ENCADRE, NBRE_SYM);
 
+	cout << setw(ESPACE_NUMERO);
 	// On affiche les lettres des jours de la semaine
-	for (int jour = 0; jour < NBR_JOUR_SEMAINE; ++jour)
-		cout <<setw(ESPACE_NUMERO) << intJourEnChar(jour);
+	for (int jour = 0; jour < NBR_JOUR_SEMAINE; ++jour) {
+
+		cout << setw(ESPACE_NUMERO) << intJourEnChar(jour);
+
+	}
 
 	cout << endl;
 
 	// On affiche les jours du mois dans les bonnes colonnes
 	// Ici jourMois débute à 1 puisqu'il est affiché
+
+	//affiche le numéro de la semaine pour le mois de l'intervalle
 	cout << calculNumSemaine(mois, 0) << " ";
+	cout << setw(ESPACE_NUMERO);
 	for (int jourMois = 1, compteur = 1; jourMois <= nbrJours; ++compteur) {
 
 
@@ -208,9 +208,11 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 			cout << jourMois++;
 
 		// On retourne à la ligne si on est en fin de ligne sauf si on est à la fin du mois
-		if (!(compteur % 7) && jourMois <= nbrJours) {
+		if (!(compteur % NBR_JOUR_SEMAINE) && jourMois <= nbrJours) {
 			cout << endl;
-			cout << calculNumSemaine(mois, compteur / 7) << " ";
+
+			//on donne le numéro de la semaine du mois courant et le numéro de semaine total est affiché
+			cout << calculNumSemaine(mois, compteur / NBR_JOUR_SEMAINE) << " ";
 		}
 	}
 
@@ -218,7 +220,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	// ce mois et on prend le modulo pour trouver le jour de la semaine auquel il correspond. Le fait
 	// que le mois suivant commencera le jour suivant (ce qui serait un +1 normalement) est déjà inclu
 	// dans nbrJours puisqu'il commence à 1 et pas à 0. Le décalage est donc garanti.
-	return ((nbrJours + debutDuMois) % 7);
+	return ((nbrJours + debutDuMois) % NBR_JOUR_SEMAINE);
 }
 
 
