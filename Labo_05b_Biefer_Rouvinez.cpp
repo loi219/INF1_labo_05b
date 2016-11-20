@@ -48,11 +48,8 @@ int nbrJoursMois(const int mois, const int annee);
 //Affiche le nombre de mois
 int afficherMois(const int mois, const int annee, const int debutDuMois);
 
-//Retourne les jours dans un mois
-int nbrJoursMois(const int mois, const int annee);
-
 //Affiche une série de signe selon un symbole donné
-void afficheBarre(char symbole, const char symboleEncadre, const int nbreSymbole);
+void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole);
 
 //Retourne la première lettre d'un jour de la semaine
 char intJourEnChar(const int numJourSemaine);
@@ -60,15 +57,19 @@ char intJourEnChar(const int numJourSemaine);
 //Retourne le nom du mois par rapport à un chiffre
 string intMoisEnString(const int numMois);
 
-
+// Permet de contrôler et corriger le flux si nécessaire
 bool controleFlux(const bool saisie);
+
+// Renvoie le jour de la semaine (0 (lundi) et 6 (dimanche)) pour une date donnée
+// Tiré de http://mathforum.org/library/drmath/view/55837.html
+int jourSemaine(const int jour, const int mois, const int annee);
 
 //===================================================================================
 // Programme principal
 //===================================================================================
 
 int main() {
-	//Constantes et variables utilisées
+	// Constantes et variables utilisées
 	//================================================================================
 	const int ANNEE_MIN = 1900;
 	const int ANNEE_MAX = 2100;
@@ -80,7 +81,7 @@ int main() {
 	int annee;
 
 
-	//Boucle qui permet de reset le programme
+	// Boucle qui permet de reset le programme
 	do {
 		cout << "Bonjour, ce programme vous permet d'afficher le calendrier complet "
 				"d'une annee en tenant compte des annees bissextiles" << endl << endl;
@@ -93,7 +94,9 @@ int main() {
 
 		cout << endl << endl;
 
-
+        // Définition du premier jour de l'année
+        //=============================================================================
+        premierJourAnnee = jourSemaine(1, 1, annee);
 
 		// Affichage
 		//=============================================================================
@@ -120,7 +123,6 @@ int main() {
 //===================================================================================
 
 
-
 int afficherMois(const int mois, const int annee, const int debutDuMois) {
 
 	// Définition des variables
@@ -143,7 +145,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	cout << endl;
 
 	// On affiche les jours du mois dans les bonnes colonnes
-	// Ici jourMois concorde puisqu'il est affiché
+	// Ici jourMois débute à 1 puisqu'il est affiché
 	for (int jourMois = 1, compteur = 1; jourMois <= nbrJours; ++compteur) {
 
 		// On affiche d'abord des espaces pour commencer le mois le bon jour de la semaine
@@ -172,7 +174,7 @@ int saisieInt(const string messageSaisie, const int borneMin, const int borneMax
 	bool saisieOK;
 	bool erreurFlux;
 
-	const string MSG_ERREUR_FLUX = "Merci d'entrer un nombre entier.";
+	const string MSG_ERREUR_FLUX   = "Merci d'entrer un nombre entier.";
 	const string MSG_ERREUR_VALEUR = "La valeur saisie n'est pas dans l'intervalle";
 
 	do {
@@ -180,58 +182,58 @@ int saisieInt(const string messageSaisie, const int borneMin, const int borneMax
 		erreurFlux = bool(cin >> saisie);
 		saisieOK = false;
 
-		if (!controleFlux(erreurFlux)) {
+		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-		} else if (saisie < borneMin || saisie > borneMax) {
+		else if (saisie < borneMin || saisie > borneMax)
 			cout << MSG_ERREUR_VALEUR << endl;
-		} else {
+		else
 			saisieOK = true;
-		}
-		VIDER_BUFFER;
+
+        VIDER_BUFFER;
 	} while (!saisieOK);
 
 	return saisie;
 }
 
 bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam) {
+    // Pour préserver l'immuablilité de la fonction, nous demandons des paramètres constants
+    // et les modifions dans des variables locales.
 
 	// Définition des variables nécessaires à la saisie
 	char saisie;        // Variable qui contiendra la valeur saisie
 	bool saisieOK,
-			erreurFlux;
-	char valeurVraie = (char) toupper(valeurVraieParam);
-	char valeurFausse = (char) toupper(valeurFausseParam);
+         erreurFlux;
+
+	const char VALEUR_VRAIE  = (char) toupper(valeurVraieParam);
+	const char VALEUR_FAUSSE = (char) toupper(valeurFausseParam);
 
 	// Définition des constantes
 
-	const string MSG_ERREUR_FLUX = "Veuillez entrer un caractere.";
+	const string MSG_ERREUR_FLUX   = "Veuillez entrer un caractere.";
 	const string MSG_ERREUR_SAISIE = "La valeur saisie n'est pas une valeur possible.";
-	saisieOK = false;
+
 	do {
 		// On récupère la saisie de l'utilisateur
-		cout << "Voulez-vous recommencer [" << valeurVraieParam << "/" << valeurFausseParam << "]: ";
+		cout << "Voulez-vous recommencer [" << VALEUR_VRAIE << "/" << VALEUR_FAUSSE << "] ? ";
 		erreurFlux = bool(cin >> saisie);
+        saisieOK = false;
 
 		// S'il y a eu une erreur de flux, on la corrige et on reboucle (flag saisieOK à false)
-		if (!controleFlux(erreurFlux)) {
+		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-			
-			// Si la valeur n'est pas parmis les valeurs demandées, on reboucle
-		} else if (toupper(saisie) != valeurVraie && toupper(saisie) != valeurFausse) {
+        // Si la valeur n'est pas parmis les valeurs demandées, on reboucle
+		else if (toupper(saisie) != VALEUR_VRAIE && toupper(saisie) != VALEUR_FAUSSE)
 			cout << MSG_ERREUR_SAISIE << endl << endl;
-			saisieOK = false;
-		}
-			// Sinon, on accepte la valeur et on arrête de boucler (flag saisieOK à true)
-		else {
+        // Sinon, on accepte la valeur et on arrête de boucler (flag saisieOK à true)
+		else
 			saisieOK = true;
-		}
 
 		VIDER_BUFFER;
 
 	} while (!saisieOK);
 
 	// On retourne finalement un booléen en fonction de la valeur saisie (true si 'o' ou 'O')
-	return (toupper(saisie) == valeurVraie);
+	return (toupper(saisie) == VALEUR_VRAIE);
 }
 
 int nbrJoursMois(const int mois, const int annee) {
@@ -249,7 +251,7 @@ bool estBissextile(const int anneeUtilisateur) {
 }
 
 string intMoisEnJours(const int numMois) {
-	string mois;
+	string mois = "";
 
 	// On affecte la valeur correcte du mois actuel à la variable string "mois"
 	switch (numMois) {
@@ -290,19 +292,18 @@ string intMoisEnJours(const int numMois) {
 			mois = "Decembre";
 			break;
 		default:
-			mois = "";
-			cerr << "Erreur !";
+			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois." << endl;
 	}
 
 	return mois;
 }
 
-void afficheBarre(char symbole, const char symboleEncadre, const int nbreSymbole) {
+void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole) {
 	//setfill n'accepte pas de const
 	char resetFill = ' ';
 
 	//affiche une suite d'un symbole encadré selon un nombre donné;
-	cout << symboleEncadre << setw(nbreSymbole) << setfill(symbole) << symboleEncadre << endl;
+	cout << symboleEncadre << setw(nbrSymbole) << setfill(symbole) << symboleEncadre << endl;
 	cout << setfill(resetFill);
 }
 
@@ -332,7 +333,7 @@ char intJourEnChar(const int numJourSemaine) {
 			jour = 'D';
 			break;
 		default:
-			cerr << "Le numero (" << numJourSemaine << ") ne correspond à aucun jour de la semaine.";
+			cerr << "Le numero (" << numJourSemaine << ") ne correspond à aucun jour de la semaine." << endl;
 	}
 
 	return jour;
@@ -378,24 +379,35 @@ string intMoisEnString(const int numMois) {
 		case 11:
 			mois = "Decembre";
 			break;
-		default:
-			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee.";
+	  	default:
+			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee." << endl;
 	}
 
-	return mois;
+    return mois;
 }
 
 
 bool controleFlux(const bool saisie) {
 
-
-	bool saisieOk = false;
+	bool saisieOK = true;
 
 	if (!saisie) {
-		cin.clear();
-	} else {
-		saisieOk = true;
-	}
+       cin.clear();
+       saisieOK = false;
+    }
 
-	return saisieOk;
-	}
+	return saisieOK;
+ }
+
+int jourSemaine(const int jour, const int mois, const int annee) {
+   int d = jour,
+           m = mois,
+           y = annee;
+
+   if (m <= 2) {
+      m += 12;
+      --y;
+   }
+
+   return (d + 2*m + (3*(m+1)/5) + y + (y/4) - (y/100) + (y/400) + 2) % 7 - 2;
+}

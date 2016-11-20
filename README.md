@@ -9,6 +9,6 @@
 - [x] Fonction estBissextile
 
 ##Upgrades                                                                                                                       
-- [ ] Fonction JoursSemaine (branch: updateJoursSemaine)                  - Julien
+- [x] Fonction JoursSemaine (branch: updateJoursSemaine)                  - Julien
 - [ ] Boucler sur tous les mois dans l'intervalle donnée (vérification + double boucle for (année et mois)) (branch: updateIntervalle) 
 - [ ] Affichage numéros de semaine (branch: updateAfficherNbreSemaine)
