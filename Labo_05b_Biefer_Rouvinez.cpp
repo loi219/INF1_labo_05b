@@ -60,9 +60,15 @@ string intMoisEnString(const int numMois);
 // Permet de contrôler et corriger le flux si nécessaire
 bool controleFlux(const bool saisie);
 
-// Renvoie le jour de la semaine (0 (lundi) et 6 (dimanche)) pour une date donnée
+// Renvoie le jour de la semaine (1 (lundi) et 7 (dimanche)) pour une date donnée
 // Tiré de http://mathforum.org/library/drmath/view/55837.html
 int jourSemaine(const int jour, const int mois, const int annee);
+
+// Vérifie si le début de l'intervalle moisDebut/anneeDebut et bien avant
+// la fin de l'intervalle moisFin/anneeFin
+// (ou le même mois sur la même année => on affiche que le mois)
+bool verifieIntervalle(const int moisDebut, const int anneeDebut,
+                       const int moisFin, const int anneeFin);
 
 //===================================================================================
 // Programme principal
@@ -73,36 +79,81 @@ int main() {
 	//================================================================================
 	const int ANNEE_MIN = 1900;
 	const int ANNEE_MAX = 2100;
+    const int MOIS_MIN =  1;
 	const int MOIS_MAX = 12;
 	const char RECOMMENCER_VRAI = 'o';
 	const char RECOMMENCER_FAUX = 'n';
 
-	int premierJourAnnee = 0;   // 0 correspond au lundi
-	int annee;
+    bool intervalleOK;
+	int premierJourIntervalle = 1;   // 0 correspond au lundi
+	int saisieMoisDebut,
+        saisieMoisFin;
+    int saisieAnneeDebut,
+        saisieAnneeFin;
 
 
 	// Boucle qui permet de reset le programme
 	do {
 		cout << "Bonjour, ce programme vous permet d'afficher le calendrier complet "
-				"d'une annee en tenant compte des annees bissextiles" << endl << endl;
+				"d'un intervalle de temps en tenant compte des annees bissextiles."
+             << endl << endl;
 
-		// Saisie + vérification
+		// Saisie de l'intervalle + vérification
 		//=============================================================================
-		annee = saisieInt("Veuillez saisie une annee dans l'intervalle ["
-		                  + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX) + "] : ",
-		                  ANNEE_MIN, ANNEE_MAX);
+        do {
+            intervalleOK = true;
 
-		cout << endl << endl;
+            cout << "Veuillez saisir le début de l'intervalle : " << endl;
+            saisieMoisDebut  = saisieInt("   Mois ["
+                                         + to_string(MOIS_MIN) + "-" + to_string(MOIS_MAX)
+                                         + "] : ", MOIS_MIN, MOIS_MAX);
+            saisieAnneeDebut = saisieInt("   Annee ["
+                                         + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX)
+                                         + "] : ", ANNEE_MIN, ANNEE_MAX);
 
-        // Définition du premier jour de l'année
+            cout << "Veuillez saisir la fin de l'intervalle : " << endl;
+            saisieMoisFin    = saisieInt("   Mois ["
+                                         + to_string(MOIS_MIN) + "-" + to_string(MOIS_MAX)
+                                         + "] : ", MOIS_MIN, MOIS_MAX);
+            saisieAnneeFin   = saisieInt("   Annee ["
+                                         + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX)
+                                         + "] : ", ANNEE_MIN, ANNEE_MAX);
+
+            if (!verifieIntervalle(saisieMoisDebut, saisieAnneeDebut, saisieMoisFin, saisieAnneeFin)) {
+               cout << "L'intervalle saisi n'est pas valide.";
+               intervalleOK = false;
+            }
+
+            cout << endl << endl;
+        } while(!intervalleOK);
+
+
+        // Définition du premier jour de l'intervalle
         //=============================================================================
-        premierJourAnnee = jourSemaine(1, 1, annee);
-
+        premierJourIntervalle = jourSemaine(1, saisieMoisDebut, saisieAnneeDebut);
+        //cout << "Le jour correspond à un " << premierJourIntervalle << "." << endl;
 		// Affichage
 		//=============================================================================
-		for (int mois = 0, premierJourMois = premierJourAnnee; mois < MOIS_MAX; ++mois) {
-			premierJourMois = afficherMois(mois, annee, premierJourMois);
-			cout << endl << endl;
+        // Pour boucler sur les années, on définit la première annee et le premier mois
+        // de l'intervalle, le premier jour de ce mois
+
+        for (int annee = saisieAnneeDebut,   moisDebut = saisieMoisDebut,
+                 moisFin = MOIS_MAX,       premierJourMois = premierJourIntervalle;
+             annee <= saisieAnneeFin; ++annee) {
+
+            // Si on a passé la première année, on veut afficher tous les mois
+            if (annee == saisieAnneeDebut+1)
+               moisDebut = MOIS_MIN;
+
+            // Si on affiche la dernière année, il faut s'arrêter au dernier mois demandé
+            if (annee == saisieAnneeFin)
+               moisFin = saisieMoisFin;
+
+            // On affiche les mois pour l'année en cours
+		    for (int mois = moisDebut; mois <= moisFin; ++mois) {
+               premierJourMois = afficherMois(mois, annee, premierJourMois);
+               cout << endl << endl;
+            }
 		}
 
 
@@ -131,7 +182,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	// Définition des constantes
 	const int NBR_JOUR_SEMAINE = 7;
 	const int ESPACE_NUMERO = 3;
-	const int NBRE_SYM = 14;
+	const int NBRE_SYM = NBR_JOUR_SEMAINE * ESPACE_NUMERO;
 	const char SYMBOLE = '=';
 	const char ENCADRE = '|';
 
@@ -139,7 +190,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	afficheBarre(SYMBOLE, ENCADRE, NBRE_SYM);
 
 	// On affiche les lettres des jours de la semaine
-	for (int jour = 0; jour < NBR_JOUR_SEMAINE; ++jour)
+	for (int jour = 1; jour <= NBR_JOUR_SEMAINE; ++jour)
 		cout << setw(ESPACE_NUMERO) << intJourEnChar(jour);
 
 	cout << endl;
@@ -150,7 +201,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 
 		// On affiche d'abord des espaces pour commencer le mois le bon jour de la semaine
 		cout << setw(ESPACE_NUMERO);
-		if (compteur <= debutDuMois)
+		if (compteur < debutDuMois)
 			cout << " ";
 			// Puis on affiche les dates
 		else
@@ -162,10 +213,9 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	}
 
 	// Pour trouver le jour à retourner, on fait le décalage du mois précédent + le nombre de jour de
-	// ce mois et on prend le modulo pour trouver le jour de la semaine auquel il correspond. Le fait
-	// que le mois suivant commencera le jour suivant (ce qui serait un +1 normalement) est déjà inclu
-	// dans nbrJours puisqu'il commence à 1 et pas à 0. Le décalage est donc garanti.
-	return ((nbrJours + debutDuMois) % 7);
+	// ce mois et on prend le modulo pour trouver le jour de la semaine auquel il correspond. Le +1
+    // assure le décalage d'un jour
+	return ((nbrJours + debutDuMois + 1) % 7);
 }
 
 int saisieInt(const string messageSaisie, const int borneMin, const int borneMax) {
@@ -242,7 +292,7 @@ int nbrJoursMois(const int mois, const int annee) {
 	//      - si ce n'est pas février, on fait modulo 7 pour "mettre août sur janvier"
 	//        ensuite on enlève soit 0 soit 1 avec le modulo 2.
 
-	return (31 - ((mois == 1) ? (3 - (int) estBissextile(annee)) : ((mois) % 7 % 2)));
+	return (31 - ((mois == 2) ? (3 - (int) estBissextile(annee)) : ((mois-1) % 7 % 2)));
 }
 
 
@@ -250,10 +300,51 @@ bool estBissextile(const int anneeUtilisateur) {
 	return bool(!(anneeUtilisateur % 400) || (!(anneeUtilisateur % 4) && (anneeUtilisateur % 100)));
 }
 
-string intMoisEnJours(const int numMois) {
+void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole) {
+	//setfill n'accepte pas de const
+	char resetFill = ' ';
+
+	//affiche une suite d'un symbole encadré selon un nombre donné;
+	cout << symboleEncadre << setw(nbrSymbole) << setfill(symbole) << symboleEncadre
+         << endl;
+	cout << setfill(resetFill);
+}
+
+
+char intJourEnChar(const int numJourSemaine) {
+	char jour = ' ';
+
+	// On match le jour de la semaine avec la première lettre du jour en char
+	switch (numJourSemaine) {
+		case 1:
+			jour = 'L';
+			break;
+		case 2:
+		case 3:
+			jour = 'M';
+			break;
+		case 4:
+			jour = 'J';
+			break;
+		case 5:
+			jour = 'V';
+			break;
+		case 6:
+			jour = 'S';
+			break;
+		case 7:
+			jour = 'D';
+			break;
+		default:
+			cout << "Le numero (" << numJourSemaine << ") ne correspond à aucun jour de la semaine." << endl;
+	}
+
+	return jour;
+}
+
+string intMoisEnString(const int numMois) {
 	string mois = "";
 
-	// On affecte la valeur correcte du mois actuel à la variable string "mois"
 	switch (numMois) {
 		case 1:
 			mois = "Janvier";
@@ -291,101 +382,12 @@ string intMoisEnJours(const int numMois) {
 		case 12:
 			mois = "Decembre";
 			break;
-		default:
-			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois." << endl;
-	}
-
-	return mois;
-}
-
-void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole) {
-	//setfill n'accepte pas de const
-	char resetFill = ' ';
-
-	//affiche une suite d'un symbole encadré selon un nombre donné;
-	cout << symboleEncadre << setw(nbrSymbole) << setfill(symbole) << symboleEncadre << endl;
-	cout << setfill(resetFill);
-}
-
-
-char intJourEnChar(const int numJourSemaine) {
-	char jour = ' ';
-
-	// On match le jour de la semaine-1 avec la première lettre du jour en char
-	switch (numJourSemaine) {
-		case 0:
-			jour = 'L';
-			break;
-		case 1:
-		case 2:
-			jour = 'M';
-			break;
-		case 3:
-			jour = 'J';
-			break;
-		case 4:
-			jour = 'V';
-			break;
-		case 5:
-			jour = 'S';
-			break;
-		case 6:
-			jour = 'D';
-			break;
-		default:
-			cerr << "Le numero (" << numJourSemaine << ") ne correspond à aucun jour de la semaine." << endl;
-	}
-
-	return jour;
-}
-
-string intMoisEnString(const int numMois) {
-	string mois = "";
-
-	switch (numMois) {
-		case 0:
-			mois = "Janvier";
-			break;
-		case 1:
-			mois = "Fevrier";
-			break;
-		case 2:
-			mois = "Mars";
-			break;
-		case 3:
-			mois = "Avril";
-			break;
-		case 4:
-			mois = "Mai";
-			break;
-		case 5:
-			mois = "Juin";
-			break;
-		case 6:
-			mois = "Juillet";
-			break;
-		case 7:
-			mois = "Aout";
-			break;
-		case 8:
-			mois = "Septembre";
-			break;
-		case 9:
-			mois = "Octobre";
-			break;
-		case 10:
-			mois = "Novembre";
-			break;
-		case 11:
-			mois = "Decembre";
-			break;
 	  	default:
-			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee." << endl;
+			cout << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee." << endl;
 	}
 
     return mois;
 }
-
 
 bool controleFlux(const bool saisie) {
 
@@ -409,5 +411,9 @@ int jourSemaine(const int jour, const int mois, const int annee) {
       --y;
    }
 
-   return (d + 2*m + (3*(m+1)/5) + y + (y/4) - (y/100) + (y/400) + 2) % 7 - 2;
+   return (d + 2*m + 3*(m+1)/5 + y + (y/4) - (y/100) + (y/400) + 7) % 7 + 1;
+}
+
+bool verifieIntervalle(const int moisDebut, const int anneeDebut, const int moisFin, const int anneeFin) {
+   return (anneeDebut < anneeFin) || (anneeDebut == anneeFin && moisDebut <= moisFin);
 }
