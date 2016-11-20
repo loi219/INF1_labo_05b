@@ -70,19 +70,12 @@ int main() {
 	//================================================================================
 	const int ANNEE_MIN = 1900;
 	const int ANNEE_MAX = 2100;
-	const int MOIS_MIN = 1;
 	const int MOIS_MAX = 12;
-	const int JOURS_MIN = 1;
-	const int JOURS_MAX_IMPAIR = 30;
-	const int JOURS_MAX_PAIR = 31;
-	const int JOURS_MAX_FEVRIER = 28;
-	const int JOURS_MAX_FEVRIER_BISSEXTILE = 29;
-	const string JOURS_SEMAINE = " L  M  M  J  V  S  D";
 	const char RECOMMENCER_VRAI = 'o';
 	const char RECOMMENCER_FAUX = 'n';
 
 	int premierJourAnnee = 0;   // 0 correspond au lundi
-	int annee, joursMaxMoisActuel;
+	int annee;
 
 
 	//Boucle qui permet de reset le programme
