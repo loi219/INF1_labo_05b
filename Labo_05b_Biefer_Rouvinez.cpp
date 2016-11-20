@@ -156,7 +156,6 @@ int main() {
             }
 		}
 
-
 	} while (saisieRecommencer(RECOMMENCER_VRAI, RECOMMENCER_FAUX));
 
 	// Fin du programme
@@ -195,9 +194,10 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 
 	cout << endl;
 
+	int compteur = 1;
 	// On affiche les jours du mois dans les bonnes colonnes
 	// Ici jourMois débute à 1 puisqu'il est affiché
-	for (int jourMois = 1, compteur = 1; jourMois <= nbrJours; ++compteur) {
+	for (int jourMois = 1; jourMois <= nbrJours; ++compteur) {
 
 		// On affiche d'abord des espaces pour commencer le mois le bon jour de la semaine
 		cout << setw(ESPACE_NUMERO);
@@ -215,7 +215,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	// Pour trouver le jour à retourner, on fait le décalage du mois précédent + le nombre de jour de
 	// ce mois et on prend le modulo pour trouver le jour de la semaine auquel il correspond. Le +1
     // assure le décalage d'un jour
-	return ((nbrJours + debutDuMois + 1) % 7);
+	return ((nbrJours + debutDuMois - 1) % 7) + 1;
 }
 
 int saisieInt(const string messageSaisie, const int borneMin, const int borneMax) {
