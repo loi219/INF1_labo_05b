@@ -61,6 +61,8 @@ char intJourEnChar(const int numJourSemaine);
 string intMoisEnString(const int numMois);
 
 
+bool controleFlux(const bool saisie);
+
 //===================================================================================
 // Programme principal
 //===================================================================================
@@ -127,9 +129,9 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	// Définition des constantes
 	const int NBR_JOUR_SEMAINE = 7;
 	const int ESPACE_NUMERO = 3;
-	const int NBRE_SYM=14;
-	const char SYMBOLE='=';
-	const char ENCADRE='|';
+	const int NBRE_SYM = 14;
+	const char SYMBOLE = '=';
+	const char ENCADRE = '|';
 
 	cout << intMoisEnString(mois) << " " << annee << endl;
 	afficheBarre(SYMBOLE, ENCADRE, NBRE_SYM);
@@ -178,15 +180,13 @@ int saisieInt(const string messageSaisie, const int borneMin, const int borneMax
 		erreurFlux = bool(cin >> saisie);
 		saisieOK = false;
 
-		if (!erreurFlux) {
-			cin.clear();
+		if (!controleFlux(erreurFlux)) {
 			cout << MSG_ERREUR_FLUX << endl;
 		} else if (saisie < borneMin || saisie > borneMax) {
 			cout << MSG_ERREUR_VALEUR << endl;
 		} else {
 			saisieOK = true;
 		}
-
 		VIDER_BUFFER;
 	} while (!saisieOK);
 
@@ -206,20 +206,18 @@ bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam
 
 	const string MSG_ERREUR_FLUX = "Veuillez entrer un caractere.";
 	const string MSG_ERREUR_SAISIE = "La valeur saisie n'est pas une valeur possible.";
-
+	saisieOK = false;
 	do {
 		// On récupère la saisie de l'utilisateur
-		cout << "Voulez-vous recommencer [" << valeurVraieParam << "/" << valeurFausseParam << "]";
+		cout << "Voulez-vous recommencer [" << valeurVraieParam << "/" << valeurFausseParam << "]: ";
 		erreurFlux = bool(cin >> saisie);
 
 		// S'il y a eu une erreur de flux, on la corrige et on reboucle (flag saisieOK à false)
-		if (!erreurFlux) {
-			cin.clear();
-			cout << MSG_ERREUR_FLUX << endl << endl;
-			saisieOK = false;
-		}
-			// Si la valeur est pas parmis les valeurs demandées, on reboucle
-		else if (toupper(saisie) != valeurVraie && toupper(saisie) != valeurFausse) {
+		if (!controleFlux(erreurFlux)) {
+			cout << MSG_ERREUR_FLUX << endl;
+			
+			// Si la valeur n'est pas parmis les valeurs demandées, on reboucle
+		} else if (toupper(saisie) != valeurVraie && toupper(saisie) != valeurFausse) {
 			cout << MSG_ERREUR_SAISIE << endl << endl;
 			saisieOK = false;
 		}
@@ -386,3 +384,18 @@ string intMoisEnString(const int numMois) {
 
 	return mois;
 }
+
+
+bool controleFlux(const bool saisie) {
+
+
+	bool saisieOk = false;
+
+	if (!saisie) {
+		cin.clear();
+	} else {
+		saisieOk = true;
+	}
+
+	return saisieOk;
+	}
