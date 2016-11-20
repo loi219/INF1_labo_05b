@@ -69,6 +69,8 @@ int jourSemaine(const int jour, const int mois, const int annee);
 //retourne le nombre de mois total entre les dates données
 int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2);
 
+int calculNumSemaine(const int mois);
+
 //===================================================================================
 // Programme principal
 //===================================================================================
@@ -126,8 +128,6 @@ int main() {
 				moisMax = moisTotal - moisBoucle;
 				moisDebut = 0;
 				annee++;
-
-
 			}
 		}
 	} while (saisieRecommencer(RECOMMENCER_VRAI, RECOMMENCER_FAUX));
@@ -146,15 +146,24 @@ int main() {
 // Fonctions
 //===================================================================================
 
+
+int calculNumSemaine(const int mois, const int numSemaineMois) {
+
+	int numSemaine;
+
+	numSemaine = mois * 4 + numSemaineMois;
+
+	return numSemaine;
+}
+
 int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2) {
 
-
-	if (annee1 < annee2 && mois1 > mois2) {
-
-		int diffMois = mois1 - mois2;
-	}
-
 	int diffMois = mois2 - mois1;
+
+	if (mois1 > mois2) {
+
+		diffMois = mois1 - mois2;
+	}
 
 	int diffAnnee = (annee2 - annee1) * 12;
 
@@ -180,13 +189,15 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 
 	// On affiche les lettres des jours de la semaine
 	for (int jour = 0; jour < NBR_JOUR_SEMAINE; ++jour)
-		cout << setw(ESPACE_NUMERO) << intJourEnChar(jour);
+		cout <<setw(ESPACE_NUMERO) << intJourEnChar(jour);
 
 	cout << endl;
 
 	// On affiche les jours du mois dans les bonnes colonnes
 	// Ici jourMois débute à 1 puisqu'il est affiché
+	cout << calculNumSemaine(mois, 0) << " ";
 	for (int jourMois = 1, compteur = 1; jourMois <= nbrJours; ++compteur) {
+
 
 		// On affiche d'abord des espaces pour commencer le mois le bon jour de la semaine
 		cout << setw(ESPACE_NUMERO);
@@ -197,8 +208,10 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 			cout << jourMois++;
 
 		// On retourne à la ligne si on est en fin de ligne sauf si on est à la fin du mois
-		if (!(compteur % 7) && jourMois <= nbrJours)
+		if (!(compteur % 7) && jourMois <= nbrJours) {
 			cout << endl;
+			cout << calculNumSemaine(mois, compteur / 7) << " ";
+		}
 	}
 
 	// Pour trouver le jour à retourner, on fait le décalage du mois précédent + le nombre de jour de
@@ -228,7 +241,8 @@ saisieInt(const string messageSaisie, const int borneMin, const int borneMax, co
 		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
 		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin || saisieMois1 > moisMax ||
-		         saisieMois2 < moisMin || saisieMois2 > moisMax || saisieAnnee1 > saisieAnnee2)
+		         saisieMois2 < moisMin
+		         || saisieMois2 > moisMax || saisieAnnee1 > saisieAnnee2)
 			cout << MSG_ERREUR_VALEUR << endl;
 		else
 			saisieOK = true;
