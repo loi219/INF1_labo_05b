@@ -111,19 +111,25 @@ int main() {
 
 		int moisTotal = calculDiffMois(saisieMois1, saisieMois2, saisieAnnee1, saisieAnnee2);
 
+		int moisDebut = saisieMois1;
+		int moisMax = MOIS_MAX;
+		for (int premierJourMois = premierJourAnnee, annee = saisieAnnee1;
+		     annee <= saisieAnnee2; ++annee) {
 
-		for (int moisCumul = 0, premierJourMois = premierJourAnnee, annee = saisieAnnee1;
-		     moisCumul < moisTotal; ++moisCumul) {
+			for (int moisBoucle = 0; moisBoucle < moisTotal;) {
 
-			for (int mois = 0; mois <= MOIS_MAX; ++mois) {
-				premierJourMois = afficherMois(mois, annee, premierJourMois);
-				cout << endl << endl;
+				for (; moisDebut <= moisMax; ++moisDebut) {
+					premierJourMois = afficherMois(moisDebut, annee, premierJourMois);
+					cout << endl << endl;
+					moisBoucle++;
+				}
+				moisMax = moisTotal - moisBoucle;
+				moisDebut = 0;
+				annee++;
+
 
 			}
-
 		}
-
-
 	} while (saisieRecommencer(RECOMMENCER_VRAI, RECOMMENCER_FAUX));
 
 	// Fin du programme
@@ -143,7 +149,10 @@ int main() {
 int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2) {
 
 
-	if (annee1 < annee2 && mois1 < mois2) {}
+	if (annee1 < annee2 && mois1 > mois2) {
+
+		int diffMois = mois1 - mois2;
+	}
 
 	int diffMois = mois2 - mois1;
 
@@ -162,7 +171,7 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	// Définition des constantes
 	const int NBR_JOUR_SEMAINE = 7;
 	const int ESPACE_NUMERO = 3;
-	const int NBRE_SYM = 14;
+	const int NBRE_SYM = 20;
 	const char SYMBOLE = '=';
 	const char ENCADRE = '|';
 
@@ -200,8 +209,9 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 }
 
 
-void saisieInt(const string messageSaisie, const int borneMin, const int borneMax, const int moisMin, const int moisMax,
-               int& saisieMois1, int& saisieAnnee1, int& saisieMois2, int& saisieAnnee2) {
+void
+saisieInt(const string messageSaisie, const int borneMin, const int borneMax, const int moisMin, const int moisMax,
+          int& saisieMois1, int& saisieAnnee1, int& saisieMois2, int& saisieAnnee2) {
 
 
 	bool saisieOK;
@@ -217,7 +227,8 @@ void saisieInt(const string messageSaisie, const int borneMin, const int borneMa
 
 		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin || saisieMois2 > moisMax)
+		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin ||
+		         saisieMois2 > moisMax || saisieAnnee1 > saisieAnnee2)
 			cout << MSG_ERREUR_VALEUR << endl;
 		else
 			saisieOK = true;
