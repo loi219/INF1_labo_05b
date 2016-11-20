@@ -227,8 +227,8 @@ saisieInt(const string messageSaisie, const int borneMin, const int borneMax, co
 
 		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin ||
-		         saisieMois2 > moisMax || saisieAnnee1 > saisieAnnee2)
+		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin || saisieMois1 > moisMax ||
+		         saisieMois2 < moisMin || saisieMois2 > moisMax || saisieAnnee1 > saisieAnnee2)
 			cout << MSG_ERREUR_VALEUR << endl;
 		else
 			saisieOK = true;
