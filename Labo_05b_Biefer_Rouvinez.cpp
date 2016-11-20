@@ -3,7 +3,7 @@
  Laboratoire : Laboratoire n°5 - Calendrier -> Laboratoire n°5b
  Fichier     : Labo_05_Farina_Naimi.cpp
  Auteurs     : Jimmy Farina, Zied Naimi
- Correcteurs : Julien Biefer et Sven Rouvinez
+ Améliorateurs : Julien Biefer et Sven Rouvinez
  Date        : 15.11.2016
 
  But         : Affiche le calendrier annuel complet d'une ann?e choisie par
@@ -14,6 +14,7 @@
 
  Compilateur : Apple LLVM 8.0
  			   MinGW-g++ 5.3.0
+ 			   gcc version 6.2.1 20160916 (Red Hat 6.2.1-2) (GCC)
  ------------------------------------------------------------------------------------
  */
 
@@ -31,7 +32,8 @@ using namespace std;
 //===================================================================================
 
 // Gère la saisie d'un nombre entier par l'utilisateur
-int saisieInt(const string messageSaisie, const int borneMin, const int borneMax);
+void saisieInt(const string messageSaisie, const int borneMin, const int borneMax, const int moisMin, const int moisMax,
+               int& saisieAnnee1, int& saisieAnnee2, int& saisieMois1, int& saisieMois2);
 
 // Gère le recommencement du programme
 bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam);
@@ -64,6 +66,9 @@ bool controleFlux(const bool saisie);
 // Tiré de http://mathforum.org/library/drmath/view/55837.html
 int jourSemaine(const int jour, const int mois, const int annee);
 
+//retourne le nombre de mois total entre les dates données
+int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2);
+
 //===================================================================================
 // Programme principal
 //===================================================================================
@@ -73,12 +78,13 @@ int main() {
 	//================================================================================
 	const int ANNEE_MIN = 1900;
 	const int ANNEE_MAX = 2100;
-	const int MOIS_MAX = 12;
+	const int MOIS_MAX = 11;
+	const int MOIS_MIN = 1;
 	const char RECOMMENCER_VRAI = 'o';
 	const char RECOMMENCER_FAUX = 'n';
 
 	int premierJourAnnee = 0;   // 0 correspond au lundi
-	int annee;
+	int saisieMois1, saisieMois2, saisieAnnee1, saisieAnnee2;
 
 
 	// Boucle qui permet de reset le programme
@@ -88,21 +94,33 @@ int main() {
 
 		// Saisie + vérification
 		//=============================================================================
-		annee = saisieInt("Veuillez saisie une annee dans l'intervalle ["
-		                  + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX) + "] : ",
-		                  ANNEE_MIN, ANNEE_MAX);
+		saisieInt("Veuillez saisir une annee dans l'intervalle ["
+		          + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX) + "] : ",
+		          ANNEE_MIN, ANNEE_MAX, MOIS_MIN, MOIS_MAX, saisieMois1, saisieAnnee1, saisieMois2,
+		          saisieAnnee2);
 
 		cout << endl << endl;
 
-        // Définition du premier jour de l'année
-        //=============================================================================
-        premierJourAnnee = jourSemaine(1, 1, annee);
+
+		// Définition du premier jour de l'année
+		//=============================================================================
+		premierJourAnnee = jourSemaine(1, saisieMois1, saisieAnnee1);
 
 		// Affichage
 		//=============================================================================
-		for (int mois = 0, premierJourMois = premierJourAnnee; mois < MOIS_MAX; ++mois) {
-			premierJourMois = afficherMois(mois, annee, premierJourMois);
-			cout << endl << endl;
+
+		int moisTotal = calculDiffMois(saisieMois1, saisieMois2, saisieAnnee1, saisieAnnee2);
+
+
+		for (int moisCumul = 0, premierJourMois = premierJourAnnee, annee = saisieAnnee1;
+		     moisCumul < moisTotal; ++moisCumul) {
+
+			for (int mois = 0; mois <= MOIS_MAX; ++mois) {
+				premierJourMois = afficherMois(mois, annee, premierJourMois);
+				cout << endl << endl;
+
+			}
+
 		}
 
 
@@ -121,6 +139,19 @@ int main() {
 //===================================================================================
 // Fonctions
 //===================================================================================
+
+int calculDiffMois(const int mois1, const int mois2, const int annee1, const int annee2) {
+
+
+	if (annee1 < annee2 && mois1 < mois2) {}
+
+	int diffMois = mois2 - mois1;
+
+	int diffAnnee = (annee2 - annee1) * 12;
+
+
+	return diffAnnee + diffMois;
+}
 
 
 int afficherMois(const int mois, const int annee, const int debutDuMois) {
@@ -168,63 +199,65 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	return ((nbrJours + debutDuMois) % 7);
 }
 
-int saisieInt(const string messageSaisie, const int borneMin, const int borneMax) {
 
-	int saisie;
+void saisieInt(const string messageSaisie, const int borneMin, const int borneMax, const int moisMin, const int moisMax,
+               int& saisieMois1, int& saisieAnnee1, int& saisieMois2, int& saisieAnnee2) {
+
+
 	bool saisieOK;
 	bool erreurFlux;
 
-	const string MSG_ERREUR_FLUX   = "Merci d'entrer un nombre entier.";
+	const string MSG_ERREUR_FLUX = "Merci d'entrer un nombre entier.";
 	const string MSG_ERREUR_VALEUR = "La valeur saisie n'est pas dans l'intervalle";
 
 	do {
 		cout << messageSaisie;
-		erreurFlux = bool(cin >> saisie);
+		erreurFlux = bool(cin >> saisieMois1 >> saisieAnnee1 >> saisieMois2 >> saisieAnnee2);
 		saisieOK = false;
 
 		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-		else if (saisie < borneMin || saisie > borneMax)
+		else if (saisieAnnee1 < borneMin || saisieAnnee2 > borneMax || saisieMois1 < moisMin || saisieMois2 > moisMax)
 			cout << MSG_ERREUR_VALEUR << endl;
 		else
 			saisieOK = true;
 
-        VIDER_BUFFER;
+		VIDER_BUFFER;
 	} while (!saisieOK);
 
-	return saisie;
+
 }
 
 bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam) {
-    // Pour préserver l'immuablilité de la fonction, nous demandons des paramètres constants
-    // et les modifions dans des variables locales.
+	// Pour préserver l'immuablilité de la fonction, nous demandons des paramètres constants
+	// et les modifions dans des variables locales.
 
 	// Définition des variables nécessaires à la saisie
 	char saisie;        // Variable qui contiendra la valeur saisie
 	bool saisieOK,
-         erreurFlux;
+			erreurFlux;
 
-	const char VALEUR_VRAIE  = (char) toupper(valeurVraieParam);
+	const char VALEUR_VRAIE = (char) toupper(valeurVraieParam);
 	const char VALEUR_FAUSSE = (char) toupper(valeurFausseParam);
 
 	// Définition des constantes
 
-	const string MSG_ERREUR_FLUX   = "Veuillez entrer un caractere.";
+	const string MSG_ERREUR_FLUX = "Veuillez entrer un caractere.";
 	const string MSG_ERREUR_SAISIE = "La valeur saisie n'est pas une valeur possible.";
 
 	do {
 		// On récupère la saisie de l'utilisateur
 		cout << "Voulez-vous recommencer [" << VALEUR_VRAIE << "/" << VALEUR_FAUSSE << "] ? ";
 		erreurFlux = bool(cin >> saisie);
-        saisieOK = false;
+		saisieOK = false;
 
 		// S'il y a eu une erreur de flux, on la corrige et on reboucle (flag saisieOK à false)
 		if (!controleFlux(erreurFlux))
 			cout << MSG_ERREUR_FLUX << endl;
-        // Si la valeur n'est pas parmis les valeurs demandées, on reboucle
+			// Si la valeur n'est pas parmis les valeurs demandées, on reboucle
 		else if (toupper(saisie) != VALEUR_VRAIE && toupper(saisie) != VALEUR_FAUSSE)
 			cout << MSG_ERREUR_SAISIE << endl << endl;
-        // Sinon, on accepte la valeur et on arrête de boucler (flag saisieOK à true)
+			// Sinon, on accepte la valeur et on arrête de boucler (flag saisieOK à true)
 		else
 			saisieOK = true;
 
@@ -379,11 +412,11 @@ string intMoisEnString(const int numMois) {
 		case 11:
 			mois = "Decembre";
 			break;
-	  	default:
+		default:
 			cerr << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee." << endl;
 	}
 
-    return mois;
+	return mois;
 }
 
 
@@ -392,22 +425,24 @@ bool controleFlux(const bool saisie) {
 	bool saisieOK = true;
 
 	if (!saisie) {
-       cin.clear();
-       saisieOK = false;
-    }
+		cin.clear();
+		saisieOK = false;
+	}
 
 	return saisieOK;
- }
+}
 
 int jourSemaine(const int jour, const int mois, const int annee) {
-   int d = jour,
-           m = mois,
-           y = annee;
+	int d = jour,
+			m = mois,
+			y = annee;
 
-   if (m <= 2) {
-      m += 12;
-      --y;
-   }
+	if (m <= 2) {
+		m += 12;
+		--y;
+	}
 
-   return (d + 2*m + (3*(m+1)/5) + y + (y/4) - (y/100) + (y/400) + 2) % 7 - 2;
+	return (d + 2 * m + (3 * (m + 1) / 5) + y + (y / 4) - (y / 100) + (y / 400) + 2) % 7 - 2;
 }
+
+
