@@ -6,14 +6,15 @@
  Correcteurs : Julien Biefer et Sven Rouvinez
  Date        : 15.11.2016
 
- But         : Affiche le calendrier annuel complet d'une ann?e choisie par
+ But         : Affiche le calendrier complet dans un intervalle choisi par
                l'utilisateur entre [1900 - 2100] en tenant compte des années
-               bissextiles.
+               bissextiles et en affichant les numéros de semaine selon la norme
+               ISO 8601. Propose à l'utilisateur de relancer le programme.
 
  Remarque(s) : Les fonctions ne tiennent pas compte des erreurs.
 
  Compilateur : Apple LLVM 8.0
- 			   MinGW-g++ 5.3.0
+ 			   gcc version 6.2.1 20160916 (Red Hat 6.2.1-2) (GCC)
  ------------------------------------------------------------------------------------
  */
 
@@ -377,7 +378,8 @@ char intJourEnChar(const int numJourSemaine) {
 			jour = 'D';
 			break;
 		default:
-			cout << "Le numero (" << numJourSemaine << ") ne correspond à aucun jour de la semaine." << endl;
+			cout << "Le numero (" << numJourSemaine
+                 << ") ne correspond à aucun jour de la semaine." << endl;
 	}
 
 	return jour;
@@ -424,7 +426,8 @@ string intMoisEnString(const int numMois) {
 			mois = "Decembre";
 			break;
 	  	default:
-			cout << "Le numero (" << numMois << ") ne correspond a aucun mois de l'annee." << endl;
+			cout << "Le numero (" << numMois
+                 << ") ne correspond a aucun mois de l'annee." << endl;
 	}
 
     return mois;
