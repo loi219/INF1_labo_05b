@@ -10,5 +10,5 @@
 
 ##Upgrades                                                                                                                       
 - [x] Fonction JoursSemaine (branch: updateJoursSemaine)                  - Julien
-- [ ] Boucler sur tous les mois dans l'intervalle donnée (vérification + double boucle for (année et mois)) (branch: updateIntervalle) 
-- [ ] Affichage numéros de semaine (branch: updateAfficherNbreSemaine)
+- [x] Boucler sur tous les mois dans l'intervalle donnée (vérification + double boucle for (année et mois)) (branch: updateIntervalle) 
+- [x] Affichage numéros de semaine (branch: updateAfficherNbreSemaine)

@@ -30,31 +30,34 @@ using namespace std;
 // Prototypes
 //===================================================================================
 
+// Affiche un mois d'une année donnée ainsi que la numérotation des semaines
+void afficherMois(const int mois, const int annee, int& debutDuMois, int& numSemaine);
+
 // Gère la saisie d'un nombre entier par l'utilisateur
 int saisieInt(const string messageSaisie, const int borneMin, const int borneMax);
 
 // Gère le recommencement du programme
 bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam);
 
+// Vérifie si le début de l'intervalle moisDebut/anneeDebut et bien avant
+// la fin de l'intervalle moisFin/anneeFin
+// (ou le même mois sur la même année => on affiche que le mois)
+bool verifieIntervalle(const int moisDebut, const int anneeDebut,
+					   const int moisFin, const int anneeFin);
+
+// Retourne le nombre de jours dans un mois
+int nbrJoursMois(const int mois, const int annee);
+
 // Défini si une année est bissextile pour une année donnée
 bool estBissextile(const int anneeUtilisateur);
 
-//Retourne le jours par rapport à 1 mois donné
-string intMoisEnJours(const int numMois);
-
-//Retourne le nombre de jours dans 1 mois
-int nbrJoursMois(const int mois, const int annee);
-
-//Affiche le nombre de mois
-int afficherMois(const int mois, const int annee, const int debutDuMois);
-
-//Affiche une série de signe selon un symbole donné
+// Affiche une série de signe selon un symbole donné
 void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole);
 
-//Retourne la première lettre d'un jour de la semaine
+// Retourne la première lettre d'un jour de la semaine
 char intJourEnChar(const int numJourSemaine);
 
-//Retourne le nom du mois par rapport à un chiffre
+// Retourne le nom du mois par rapport à un chiffre
 string intMoisEnString(const int numMois);
 
 // Permet de contrôler et corriger le flux si nécessaire
@@ -64,11 +67,16 @@ bool controleFlux(const bool saisie);
 // Tiré de http://mathforum.org/library/drmath/view/55837.html
 int jourSemaine(const int jour, const int mois, const int annee);
 
-// Vérifie si le début de l'intervalle moisDebut/anneeDebut et bien avant
-// la fin de l'intervalle moisFin/anneeFin
-// (ou le même mois sur la même année => on affiche que le mois)
-bool verifieIntervalle(const int moisDebut, const int anneeDebut,
-                       const int moisFin, const int anneeFin);
+// Renvoie le nombre total de jours avant le début de moisFinal sur une année donnée
+int totalJourMois(const int moisFinal, const int annee);
+
+// Renvoie le n° de la semaine pour une date donnée (peu précis)
+int numeroSemainePourDate(const int jour, const int mois, const int annee);
+
+// Renvoie le numéro de la première semaine d'un mois en fonction du premier jour
+// Implémenté selon ISO 8601 : https://fr.wikipedia.org/wiki/ISO_8601
+// Cette fonction ajuste la précédente
+void ajusterNumeroPremiereSemaine(int &premiereSemaine, const int mois, const int annee);
 
 //===================================================================================
 // Programme principal
@@ -90,7 +98,6 @@ int main() {
         saisieMoisFin;
     int saisieAnneeDebut,
         saisieAnneeFin;
-
 
 	// Boucle qui permet de reset le programme
 	do {
@@ -116,28 +123,26 @@ int main() {
                                          + to_string(MOIS_MIN) + "-" + to_string(MOIS_MAX)
                                          + "] : ", MOIS_MIN, MOIS_MAX);
             saisieAnneeFin   = saisieInt("   Annee ["
-                                         + to_string(ANNEE_MIN) + "-" + to_string(ANNEE_MAX)
-                                         + "] : ", ANNEE_MIN, ANNEE_MAX);
+                                         + to_string(saisieAnneeDebut) + "-" + to_string(ANNEE_MAX)
+                                         + "] : ", saisieAnneeDebut, ANNEE_MAX);
 
             if (!verifieIntervalle(saisieMoisDebut, saisieAnneeDebut, saisieMoisFin, saisieAnneeFin)) {
                cout << "L'intervalle saisi n'est pas valide.";
                intervalleOK = false;
             }
-
             cout << endl << endl;
-        } while(!intervalleOK);
 
+        } while(!intervalleOK);
 
         // Définition du premier jour de l'intervalle
         //=============================================================================
         premierJourIntervalle = jourSemaine(1, saisieMoisDebut, saisieAnneeDebut);
-        //cout << "Le jour correspond à un " << premierJourIntervalle << "." << endl;
+
 		// Affichage
 		//=============================================================================
         // Pour boucler sur les années, on définit la première annee et le premier mois
         // de l'intervalle, le premier jour de ce mois
-
-        for (int annee = saisieAnneeDebut,   moisDebut = saisieMoisDebut,
+        for (int annee = saisieAnneeDebut,   moisDebut = saisieMoisDebut, numSemaine = -1,
                  moisFin = MOIS_MAX,       premierJourMois = premierJourIntervalle;
              annee <= saisieAnneeFin; ++annee) {
 
@@ -149,9 +154,14 @@ int main() {
             if (annee == saisieAnneeFin)
                moisFin = saisieMoisFin;
 
-            // On affiche les mois pour l'année en cours
+			// Si janvier est le première valeur saisie, donc si numSemaine n'est pas modifiée
+			// numSemaine possède toujours la valeur -1 qui permet d'afficher la semaine de
+			// l'année précédente si nécessaire
+			ajusterNumeroPremiereSemaine(numSemaine, moisDebut, annee);
+
+			// On affiche les mois pour l'année en cours
 		    for (int mois = moisDebut; mois <= moisFin; ++mois) {
-               premierJourMois = afficherMois(mois, annee, premierJourMois);
+               afficherMois(mois, annee, premierJourMois, numSemaine);
                cout << endl << endl;
             }
 		}
@@ -172,16 +182,20 @@ int main() {
 // Fonctions
 //===================================================================================
 
-
-int afficherMois(const int mois, const int annee, const int debutDuMois) {
+void afficherMois(const int mois, const int annee, int& debutDuMois, int& numSemaine) {
 
 	// Définition des variables
 	int nbrJours = nbrJoursMois(mois, annee);
 
 	// Définition des constantes
+	const int MOIS_JANVIER  = 1;
+	const int MOIS_DECEMBRE = 12;
 	const int NBR_JOUR_SEMAINE = 7;
-	const int ESPACE_NUMERO = 3;
-	const int NBRE_SYM = NBR_JOUR_SEMAINE * ESPACE_NUMERO;
+	const int NOMBRE_LIMITE_REPORT_SEMAINE = 52;
+	const int ESPACE_NUMERO    = 3;
+	const int ESPACE_SEMAINE   = 3;
+	// Le + 1 correspond à l'espace entre le numéro de la semaine et la numérotation des jours
+	const int NBRE_SYM = NBR_JOUR_SEMAINE * ESPACE_NUMERO + ESPACE_SEMAINE + 1;
 	const char SYMBOLE = '=';
 	const char ENCADRE = '|';
 
@@ -189,33 +203,58 @@ int afficherMois(const int mois, const int annee, const int debutDuMois) {
 	afficheBarre(SYMBOLE, ENCADRE, NBRE_SYM);
 
 	// On affiche les lettres des jours de la semaine
+	// Le + 1 et l'espace compensent les symboles encadrés dans la barre
+	cout << setw(ESPACE_SEMAINE + 1) << " ";
 	for (int jour = 1; jour <= NBR_JOUR_SEMAINE; ++jour)
 		cout << setw(ESPACE_NUMERO) << intJourEnChar(jour);
-
 	cout << endl;
 
-	int compteur = 1;
 	// On affiche les jours du mois dans les bonnes colonnes
 	// Ici jourMois débute à 1 puisqu'il est affiché
-	for (int jourMois = 1; jourMois <= nbrJours; ++compteur) {
+	for (int jourMois = 1, compteur = 1; jourMois <= nbrJours; ++compteur) {
+
+		// On affiche le n° de la semaine
+		if (compteur % 7 == 1) {
+			// SEMAINE : CAS PARTICULIER (merci d'être tolérant sur les valeurs en durs)
+			// Ajustement pour l'affichage correcte des semaines (cas de décembre 2014 par exemple)
+			// Si la dernière semaine d'une année ne comprend pas le jeudi dans cette année, il faut
+			// recommecencer à 1 le décompte
+			if (mois == MOIS_DECEMBRE && jourMois >= 29)
+				numSemaine = 1;
+
+			cout << setw(ESPACE_SEMAINE) << numSemaine << " ";
+
+			// SEMAINE : CAS PARTICULIER (merci d'être tolérant sur les valeurs en durs)
+			// Si le nombre de semaine est trop grand, donc il est reporté depuis l'année
+			// précédente car le premier jour de l'année courrante est après le premier jeudi,
+			// il faut réinitialiser la numérotation des semaines
+			if (mois == MOIS_JANVIER && numSemaine >= NOMBRE_LIMITE_REPORT_SEMAINE)
+				numSemaine = 0;
+		}
 
 		// On affiche d'abord des espaces pour commencer le mois le bon jour de la semaine
 		cout << setw(ESPACE_NUMERO);
 		if (compteur < debutDuMois)
 			cout << " ";
-			// Puis on affiche les dates
+		// Puis on affiche les dates
 		else
 			cout << jourMois++;
 
-		// On retourne à la ligne si on est en fin de ligne sauf si on est à la fin du mois
-		if (!(compteur % 7) && jourMois <= nbrJours)
-			cout << endl;
+		// Si on a terminé une semaine :
+		if (!(compteur % 7)) {
+			// On incrémente numSemaine pour l'afficher la prochaine fois
+			++numSemaine;
+
+			// Et on fait un retour à la ligne si on n'est pas à la fin du mois
+			if (jourMois <= nbrJours)
+				cout << endl;
+		}
 	}
 
 	// Pour trouver le jour à retourner, on fait le décalage du mois précédent + le nombre de jour de
 	// ce mois et on prend le modulo pour trouver le jour de la semaine auquel il correspond. Le +1
     // assure le décalage d'un jour
-	return ((nbrJours + debutDuMois - 1) % 7) + 1;
+	debutDuMois = ((nbrJours + debutDuMois - 1) % 7) + 1;
 }
 
 int saisieInt(const string messageSaisie, const int borneMin, const int borneMax) {
@@ -258,7 +297,6 @@ bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam
 	const char VALEUR_FAUSSE = (char) toupper(valeurFausseParam);
 
 	// Définition des constantes
-
 	const string MSG_ERREUR_FLUX   = "Veuillez entrer un caractere.";
 	const string MSG_ERREUR_SAISIE = "La valeur saisie n'est pas une valeur possible.";
 
@@ -286,6 +324,11 @@ bool saisieRecommencer(const char valeurVraieParam, const char valeurFausseParam
 	return (toupper(saisie) == VALEUR_VRAIE);
 }
 
+bool verifieIntervalle(const int moisDebut, const int anneeDebut,
+					   const int moisFin, const int anneeFin) {
+	return (anneeDebut < anneeFin) || (anneeDebut == anneeFin && moisDebut <= moisFin);
+}
+
 int nbrJoursMois(const int mois, const int annee) {
 	// On compte 31 pour tous les mois puis
 	//      - si c'est février, on déduit 2 si c'est bissextile et 3 si ça ne l'est pas
@@ -294,7 +337,6 @@ int nbrJoursMois(const int mois, const int annee) {
 
 	return (31 - ((mois == 2) ? (3 - (int) estBissextile(annee)) : ((mois-1) % 7 % 2)));
 }
-
 
 bool estBissextile(const int anneeUtilisateur) {
 	return bool(!(anneeUtilisateur % 400) || (!(anneeUtilisateur % 4) && (anneeUtilisateur % 100)));
@@ -309,7 +351,6 @@ void afficheBarre(char symbole, const char symboleEncadre, const int nbrSymbole)
          << endl;
 	cout << setfill(resetFill);
 }
-
 
 char intJourEnChar(const int numJourSemaine) {
 	char jour = ' ';
@@ -402,18 +443,59 @@ bool controleFlux(const bool saisie) {
  }
 
 int jourSemaine(const int jour, const int mois, const int annee) {
-   int d = jour,
-           m = mois,
-           y = annee;
+    int d = jour,
+	    m = mois,
+	    y = annee;
 
-   if (m <= 2) {
-      m += 12;
-      --y;
-   }
+    if (m <= 2) {
+        m += 12;
+		--y;
+    }
 
-   return (d + 2*m + 3*(m+1)/5 + y + (y/4) - (y/100) + (y/400) + 7) % 7 + 1;
+    return (d + 2*m + 3*(m+1)/5 + y + (y/4) - (y/100) + (y/400) + 7) % 7 + 1;
 }
 
-bool verifieIntervalle(const int moisDebut, const int anneeDebut, const int moisFin, const int anneeFin) {
-   return (anneeDebut < anneeFin) || (anneeDebut == anneeFin && moisDebut <= moisFin);
+int totalJourMois(const int moisFinal, const int annee) {
+	const int MOIS_MIN = 1;
+	int total = 0;
+
+	for(int mois = MOIS_MIN; mois < moisFinal; ++mois)
+		total += nbrJoursMois(mois, annee);
+
+	return total;
+}
+
+int numeroSemainePourDate(const int jour, const int mois, const int annee) {
+	const int NUM_JEUDI = 4;
+
+	int joursMoisPassés = totalJourMois(mois, annee);
+	int jeudiDeLaSemaine = jour + NUM_JEUDI - jourSemaine(jour, mois, annee);
+	int joursTotaux = joursMoisPassés + jeudiDeLaSemaine;
+
+	return (joursTotaux - 1)/7 + 1;
+}
+
+void ajusterNumeroPremiereSemaine(int &premiereSemaine, const int mois, const int annee) {
+	const int CAS_SPECIAL_JAN_PREMIER_MOIS_AFFICHE = -1;
+	const int NBR_JOUR_DECEMBRE = 31;
+	const int MOIS_JANVIER = 1;
+	const int MOIS_MAX = 12;
+
+	// Si on commence une nouvelle année
+	if (mois == MOIS_JANVIER) {
+		// Puisque le premier jeudi de l'année est compris dans la première semaine,
+		// si le premier jour de l'année est un jeudi ou avant, on recommence à un
+		if (jourSemaine(1, mois, annee) <= 4) {
+			premiereSemaine = 1;
+		}
+		// si le premier jour de l'année est un vendredi ou après, on est dans la dernière
+		// semaine de l'année précédente.
+		else if (premiereSemaine == CAS_SPECIAL_JAN_PREMIER_MOIS_AFFICHE) {
+			premiereSemaine = numeroSemainePourDate(NBR_JOUR_DECEMBRE, MOIS_MAX, annee-1);
+		}
+	}
+	// Si ce n'est pas janvier, on utilise une formule pour trouver la première semaine
+	else {
+		premiereSemaine = numeroSemainePourDate(1, mois, annee);
+	}
 }
